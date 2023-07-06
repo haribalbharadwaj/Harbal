@@ -1,0 +1,65 @@
+import pygame
+from pygame.locals import *
+from Box2D import *
+
+# Set up the simulation world
+world = b2World(gravity=(0, -10))
+timeStep = 1.0 / 60
+velocityIterations = 6
+positionIterations = 2
+
+# Create the ground body
+ground_body = world.CreateStaticBody(
+    position=(0, 0),
+    shapes=b2PolygonShape(box=(50, 1))
+)
+
+# Create the pendulum body
+pendulum_body = world.CreateDynamicBody(
+    position=(0, 10),
+    fixtures=b2FixtureDef(
+        shape=b2CircleShape(radius=1),
+        density=1,
+        friction=0.3
+    )
+)
+
+# Create the pendulum joint
+pendulum_joint = world.CreateRevoluteJoint(
+    bodyA=ground_body,
+    bodyB=pendulum_body,
+    anchor=(0, 0),
+    collideConnected=False
+)
+
+# Set up the pygame window
+pygame.init()
+screen = pygame.display.set_mode((800, 600))
+clock = pygame.time.Clock()
+
+# Simulation loop
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            running = False
+
+    # Step the simulation forward
+    world.Step(timeStep, velocityIterations, positionIterations)
+
+    # Clear the screen
+    screen.fill((255, 255, 255))
+
+    # Draw the ground
+    ground_pos = ground_body.position
+    pygame.draw.rect(screen, (0, 0, 0), Rect(ground_pos.x - 25, 600 - ground_pos.y - 1, 50, 2))
+
+    # Draw the pendulum
+    pendulum_pos = pendulum_body.position
+    pygame.draw.circle(screen, (0, 0, 255), (int(pendulum_pos.x), 600 - int(pendulum_pos.y)), 20)
+
+    # Update the display
+    pygame.display.flip()
+    clock.tick(60)
+
+pygame.quit()
