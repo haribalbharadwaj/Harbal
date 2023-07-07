@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Velocity Simulation</title>
+    <style>
+      body {
+        margin: 0;
+      }
+      canvas {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
+    <script>
+      // Constants
+      const GRAVITY = -0.1; // Acceleration due to gravity
+      const BOUNCE_FACTOR = 0.8; // Coefficient of restitution (bounciness)
+
+      // Create the scene
+      const scene = new THREE.Scene();
+
+      // Create the camera
+      const camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      camera.position.z = 5;
+
+      // Create the renderer
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      // Create the ball
+      const radius = 0.5;
+      const ball = new THREE.Mesh(
+        new THREE.SphereGeometry(radius, 32, 32),
+        new THREE.MeshBasicMaterial({ color: 0xff0000 })
+      );
+      ball.position.y = radius; // Start the ball above the ground
+      scene.add(ball);
+
+      // Set the initial velocity of the ball
+      let velocity = 0.1; // Initial velocity in the y-direction
+
+      // Animation loop
+      function animate() {
+        requestAnimationFrame(animate);
+
+        // Update the ball's position
+        ball.position.y += velocity;
+        velocity += GRAVITY;
+
+        // Check for collision with the ground
+        if (ball.position.y <= radius) {
+          // Reverse the velocity and dampen it (simulate bouncing)
+          velocity *= -BOUNCE_FACTOR;
+          ball.position.y = radius;
+        }
+
+        // Render the scene
+        renderer.render(scene, camera);
+      }
+
+      // Start the animation
+      animate();
+    </script>
+  </body>
+</html>
